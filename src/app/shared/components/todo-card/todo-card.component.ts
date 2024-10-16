@@ -1,4 +1,5 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, NgModule, Output } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-todo-card',
@@ -9,9 +10,18 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class TodoCardComponent {
   @Input() toDoFromOtherPage: string = '';
+  @Input() todoId!: number;
   @Output() onRemoveClick: EventEmitter<string> = new EventEmitter<string>();
+
+  constructor(private router: Router) {}
 
   onRemove() {
     this.onRemoveClick.emit(this.toDoFromOtherPage);
   }
+
+  goToDetailPage() {
+    console.log(this.todoId)
+    this.router.navigate([`/todos/${this.todoId}`]);
+  }
+
 }

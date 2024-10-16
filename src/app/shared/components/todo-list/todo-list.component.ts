@@ -3,6 +3,9 @@ import { TodoCardComponent } from './../todo-card/todo-card.component';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { GetToDoListResponse } from '../../models/getToDoListResponse';
+import { CreateToDoRequest } from '../../models/createToDoRequest';
+import { CreatedToDoListResponse } from '../../models/createdToDoListResponse';
+import { GetToDoResponse } from '../../models/getToDoResponse';
 
 @Component({
   selector: 'app-todo-list',
@@ -14,6 +17,12 @@ import { GetToDoListResponse } from '../../models/getToDoListResponse';
 export class TodoListComponent implements OnInit {
   todoList: string[] = [];
   newTodo: string = '';
+  todoRequest: CreateToDoRequest = {
+    userId: 0,  // Başlangıç değeri
+    id: 0,      // Başlangıç değeri
+    title: '',
+    completed: false,
+  };
   toDoListFromBackend: GetToDoListResponse[] = [];
   // Dependency Injection
   constructor(private httpClient: HttpClient) {}
@@ -49,5 +58,55 @@ export class TodoListComponent implements OnInit {
         },
       });
     // RxJs observable
+  }
+
+  getTodo(id: number) {
+    this.httpClient
+      .get<GetToDoResponse>(`https://jsonplaceholder.typicode.com/todos/${id}`)
+      .subscribe({
+        next: (response: GetToDoResponse) => {
+          console.log('Başarılı:', response);
+        },
+        error: (err: any) => {
+          console.log('HATA', err);
+        },
+        complete: () => {
+          console.log('İstek başarılı bitti');
+        },
+      });
+  }
+
+  createTodo() {
+    this.httpClient
+      .post<CreatedToDoListResponse>('https://jsonplaceholder.typicode.com/todos', this.todoRequest)
+      .subscribe({
+        next: (response: CreatedToDoListResponse) => {
+          console.log('Başarılı:', response);
+        },
+        error: (err: any) => {
+          console.log('HATA', err);
+        },
+        complete: () => {
+          console.log('İstek başarılı bitti');
+        },
+      });
+  }
+
+  deleteTodo(id: number) {
+    this.httpClient
+      .delete(`https://jsonplaceholder.typicode.com/todos/${id}`)
+      .subscribe({
+        next: () => {
+          console.log(`Todo with id ${id} silindi.`);
+          // Silindikten sonra listeyi güncelle
+          this.toDoListFromBackend = this.toDoListFromBackend.filter(todo => todo.id !== id);
+        },
+        error: (err: any) => {
+          console.log('HATA', err);
+        },
+        complete: () => {
+          console.log('Silme isteği başarılı bitti');
+        },
+      });
   }
 }
